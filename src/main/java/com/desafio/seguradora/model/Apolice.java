@@ -4,7 +4,12 @@ import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
+import com.desafio.seguradora.components.ClienteConverter;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
@@ -18,8 +23,8 @@ public class Apolice {
         
     }
 
-    public Apolice(String id, Date vigenciaInicio, Date vigenciaFim, String placa, Double valor, Cliente cliente) {
-        this.id = id;
+    public Apolice(String numero, Date vigenciaInicio, Date vigenciaFim, String placa, Double valor, Cliente cliente) {
+        this.numero = numero;
         this.vigenciaInicio = vigenciaInicio;
         this.vigenciaFim = vigenciaFim;
         this.placa = placa;
@@ -28,12 +33,14 @@ public class Apolice {
     }
 
     @Id
-    private String id;
+    private String numero;
 
     @NotNull(message = "Campo vigenciaInicio é obrigatório")
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date vigenciaInicio;
     
     @NotNull(message = "Campo vigenciaFim é obrigatório")
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date vigenciaFim;
 
     @NotNull(message = "Campo placa é obrigatório")
@@ -43,14 +50,15 @@ public class Apolice {
     private Double valor;
     
     @NotNull(message = "Campo cliente é obrigatório")
+    @DBRef
     private Cliente cliente;
 
-    public String getId() {
-        return id;
+    public String getNumero() {
+        return numero;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setNumero(String numero) {
+        this.numero = numero;
     }
 
     public Date getVigenciaInicio() {

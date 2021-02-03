@@ -13,17 +13,30 @@ import lombok.Data;
 @Data
 public class Cliente {
 
-    public Cliente() {}
-    
+    public Cliente() {
+    }
+
+    public Cliente(String id) {
+        this.id = id;
+    }
+
+    public Cliente(String id, String nome, String cpf, String cidade, String uf) {
+        this.id = id;
+        this.nome = nome;
+        this.cpf = cpf;
+        this.cidade = cidade;
+        this.uf = uf;
+    }
+
     @Id
     private String id;
 
     @NotNull(message = "Campo nome é obrigatório")
     private String nome;
 
-    @Indexed(unique = true)
     @NotNull(message = "Campo CPF é obrigatório")
     @CPF(message = "cpf inválido")
+    @Indexed(unique = true)
     private String cpf;
 
     @NotNull(message = "Campo cidade é obrigatório")
