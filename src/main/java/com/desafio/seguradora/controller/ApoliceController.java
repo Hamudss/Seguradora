@@ -1,9 +1,14 @@
 package com.desafio.seguradora.controller;
 
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.validation.Valid;
 
+import com.desafio.seguradora.dto.ApoliceDTO;
 import com.desafio.seguradora.model.Apolice;
 import com.desafio.seguradora.repository.ApoliceRepository;
 import com.desafio.seguradora.repository.ClienteRepository;
@@ -49,8 +54,9 @@ public class ApoliceController {
     public ResponseEntity<Apolice> atualizar(@PathVariable String id, @Valid @RequestBody Apolice apolice) {
         try {
             apolice.setNumero(id);
-
-            return new ResponseEntity<Apolice>(apoliceRepository.save(apolice), HttpStatus.OK);
+            apolice = apoliceRepository.save(apolice);
+            apolice.setCliente(clienteRepository.findById(apolice.getCliente().getId()).orElse(null));
+            return new ResponseEntity<Apolice>(apolice, HttpStatus.OK);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -69,11 +75,16 @@ public class ApoliceController {
 
     @GetMapping("/{id}")
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    public ResponseEntity<Apolice> obterPorId(@PathVariable String id) {
+    public ResponseEntity<ApoliceDTO> obterPorId(@PathVariable String id) {
         try {
-            return new ResponseEntity<Apolice>(
-                    apoliceRepository.findById(id).orElseThrow(() -> new Exception("Apólice não localizada - " + id)),
-                    HttpStatus.OK);
+            ApoliceDTO apoliceDto = ApoliceDTO.ApoliceToApoliceDTO(
+                    apoliceRepository.findById(id).orElseThrow(() -> new Exception("Apólice não localizada - " + id)));
+            Boolean vencida = compareDate(apoliceDto.getVigenciaFim());
+            
+            apoliceDto.setApoliceVencida(vencida);
+            apoliceDto.setDiasParaVencer(daysToFinish(apoliceDto.getVigenciaFim()));
+
+            return new ResponseEntity<ApoliceDTO>(apoliceDto, HttpStatus.OK);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
@@ -89,5 +100,19 @@ public class ApoliceController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
 
+    }
+
+    private Boolean compareDate(Date date){
+        Date dateNow = new Date();
+        if(date.compareTo(dateNow) == 1) {
+            return false;
+        }
+        return true;
+    }
+
+
+    private Long daysToFinish(Date date){
+        long diff = date.getTime() - new Date().getTime();
+        return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
     }
 }
