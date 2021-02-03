@@ -4,9 +4,7 @@ import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
-import com.desafio.seguradora.components.ClienteConverter;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
